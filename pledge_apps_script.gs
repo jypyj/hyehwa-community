@@ -130,7 +130,10 @@ function setupStatSheet(sheet) {
 /* ===== POST 요청 처리 ===== */
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
+    // form 파라미터 또는 JSON 둘 다 지원
+    const data = e.parameter && e.parameter.role
+      ? e.parameter
+      : JSON.parse(e.postData.contents);
     const ss = SPREADSHEET_ID
       ? SpreadsheetApp.openById(SPREADSHEET_ID)
       : SpreadsheetApp.getActiveSpreadsheet();
