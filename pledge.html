@@ -1007,32 +1007,13 @@ function submitToSheet(info, resolve) {
     data.name = document.getElementById('staff-name').value.trim();
   }
 
-  // hidden iframe + form 방식으로 전송 (CORS 우회)
-  let iframe = document.getElementById('submit-iframe');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id = 'submit-iframe';
-    iframe.name = 'submit-iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-  }
-
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = SCRIPT_URL;
-  form.target = 'submit-iframe';
-
-  for (const [key, value] of Object.entries(data)) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = value;
-    form.appendChild(input);
-  }
-
-  document.body.appendChild(form);
-  form.submit();
-  form.remove();
+  // fetch + no-cors 방식으로 전송
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify(data)
+  }).catch(() => {});
 }
 
 /* ===== 리셋 ===== */
