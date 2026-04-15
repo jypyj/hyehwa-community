@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 혜화공동체 약속 - 온라인 서약 및 선서</title>
+<style>
+/* ===== 리셋 & 기본 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: #F0F4F8;
+  color: #333;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ===== 헤더 ===== */
+.header {
+  background: linear-gradient(135deg, #2C5F8A 0%, #1A3D5C 100%);
+  color: #fff;
+  padding: 32px 20px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.06) 0%, transparent 50%);
+}
+.header .school-name {
+  font-size: 0.85rem;
+  opacity: 0.8;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+.header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 6px;
+  position: relative;
+}
+.header .subtitle {
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+.header .period {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 4px 16px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+/* ===== 메인 컨테이너 ===== */
+.container {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+}
+
+/* ===== 스텝 인디케이터 ===== */
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.step-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #D0D8E0;
+  transition: all 0.3s;
+}
+.step-dot.active { background: #2C5F8A; transform: scale(1.2); }
+.step-dot.done { background: #48BB78; }
+
+/* ===== 카드 ===== */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  margin-bottom: 16px;
+}
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2C5F8A;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title .icon {
+  width: 28px; height: 28px;
+  background: #EBF2FA;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+/* ===== 역할 선택 ===== */
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.role-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 12px;
+  border: 2px solid #E8ECF0;
+  border-radius: 14px;
+  background: #FAFBFC;
+  cursor: pointer;
+  transition: all 0.25s;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+.role-btn:hover {
+  border-color: #2C5F8A;
+  background: #EBF2FA;
+}
+.role-btn.selected {
+  border-color: #2C5F8A;
+  background: #2C5F8A;
+  color: #fff;
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(44,95,138,0.25);
+}
+.role-btn .role-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+.role-btn.selected .role-icon { filter: brightness(10); }
+
+/* ===== 입력 필드 ===== */
+.form-group {
+  margin-bottom: 14px;
+}
+.form-group label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 6px;
+}
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #E8ECF0;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-family: inherit;
+  color: #333;
+  transition: border-color 0.2s;
+  background: #FAFBFC;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: #2C5F8A;
+  background: #fff;
+}
+.form-group input::placeholder {
+  color: #aaa;
+}
+.student-fields {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.student-fields.show { display: block; }
+.parent-fields, .staff-fields {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.parent-fields.show, .staff-fields.show { display: block; }
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ===== 약속 표시 ===== */
+.promise-section {
+  display: none;
+  animation: fadeIn 0.4s ease;
+}
+.promise-section.show { display: block; }
+
+.promise-box {
+  background: linear-gradient(135deg, #F7FAFC 0%, #EBF2FA 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  border-left: 4px solid #2C5F8A;
+}
+.promise-box h3 {
+  font-size: 0.95rem;
+  color: #2C5F8A;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+.promise-list {
+  list-style: none;
+}
+.promise-list li {
+  position: relative;
+  padding: 8px 0 8px 24px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #444;
+}
+.promise-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 14px;
+  width: 8px; height: 8px;
+  background: #2C5F8A;
+  border-radius: 50%;
+}
+.promise-list li + li {
+  border-top: 1px solid rgba(44,95,138,0.1);
+}
+
+/* ===== 선서문 ===== */
+.oath-box {
+  background: #FFFDF5;
+  border: 2px solid #F0E6C8;
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.oath-box .oath-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #8B6914;
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+}
+.oath-box .oath-text {
+  font-size: 0.92rem;
+  color: #5A4810;
+  line-height: 2;
+  text-align: left;
+  word-break: keep-all;
+}
+.oath-box .oath-text .highlight {
+  background: linear-gradient(transparent 60%, #FFEAA7 60%);
+  font-weight: 700;
+}
+
+/* ===== 체크박스 ===== */
+.pledge-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px;
+  background: #F7FAFC;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+.pledge-check:hover { background: #EBF2FA; }
+.pledge-check.checked {
+  border-color: #48BB78;
+  background: #F0FFF4;
+}
+.pledge-check input[type="checkbox"] {
+  width: 22px; height: 22px;
+  margin-top: 2px;
+  accent-color: #48BB78;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.pledge-check span {
+  font-size: 0.88rem;
+  color: #444;
+  line-height: 1.5;
+}
+
+/* ===== 다짐 한마디 ===== */
+.resolve-input {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed #D0D8E0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  color: #333;
+  resize: none;
+  min-height: 72px;
+  transition: border-color 0.2s;
+  background: #FAFBFC;
+}
+.resolve-input:focus {
+  outline: none;
+  border-color: #2C5F8A;
+  border-style: solid;
+  background: #fff;
+}
+.resolve-input::placeholder { color: #aaa; }
+
+/* ===== 버튼 ===== */
+.btn {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #2C5F8A 0%, #1A3D5C 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(44,95,138,0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(44,95,138,0.4);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+.btn-secondary {
+  background: #E8ECF0;
+  color: #555;
+  margin-bottom: 10px;
+}
+.btn-secondary:hover { background: #D0D8E0; }
+
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* ===== 완료 화면 ===== */
+.completion {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+  animation: fadeIn 0.5s ease;
+}
+.completion.show { display: block; }
+.completion .check-circle {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, #48BB78, #38A169);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: popIn 0.5s ease;
+}
+.completion .check-circle svg {
+  width: 40px; height: 40px;
+  stroke: #fff;
+  stroke-width: 3;
+  fill: none;
+}
+.completion h2 {
+  font-size: 1.4rem;
+  color: #2C5F8A;
+  margin-bottom: 8px;
+}
+.completion p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 6px;
+}
+.completion .participant-info {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: #EBF2FA;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #2C5F8A;
+  font-weight: 600;
+}
+.completion .resolve-display {
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: #FFFDF5;
+  border: 1px solid #F0E6C8;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #5A4810;
+  font-style: italic;
+}
+.completion .resolve-display::before {
+  content: '\201C';
+  font-size: 1.5rem;
+  color: #C8A83A;
+  line-height: 0;
+  vertical-align: -4px;
+  margin-right: 4px;
+}
+.completion .resolve-display::after {
+  content: '\201D';
+  font-size: 1.5rem;
+  color: #C8A83A;
+  line-height: 0;
+  vertical-align: -4px;
+  margin-left: 4px;
+}
+
+.completion .date-stamp {
+  margin-top: 20px;
+  font-size: 0.82rem;
+  color: #999;
+}
+
+.completion .stamp {
+  display: inline-block;
+  margin-top: 20px;
+  width: 100px; height: 100px;
+  border: 4px solid #c0392b;
+  border-radius: 50%;
+  color: #c0392b;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.3;
+  transform: rotate(-15deg);
+  opacity: 0.75;
+  margin: 20px auto 0;
+  animation: stampIn 0.4s ease 0.3s both;
+}
+
+/* ===== 숨김 ===== */
+.hidden { display: none !important; }
+
+/* ===== 에러 ===== */
+.error-msg {
+  color: #E53E3E;
+  font-size: 0.78rem;
+  margin-top: 4px;
+  display: none;
+}
+.error-msg.show { display: block; }
+
+/* ===== 안내 배너 ===== */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #EBF2FA;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  color: #2C5F8A;
+  line-height: 1.5;
+}
+.info-banner .info-icon {
+  flex-shrink: 0;
+  width: 20px; height: 20px;
+  background: #2C5F8A;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-top: 1px;
+}
+
+/* ===== 애니메이션 ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0% { transform: scale(0); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+@keyframes stampIn {
+  0% { transform: rotate(-15deg) scale(2); opacity: 0; }
+  100% { transform: rotate(-15deg) scale(1); opacity: 0.75; }
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 400px) {
+  .role-grid { grid-template-columns: 1fr; }
+  .input-row { grid-template-columns: 1fr; }
+  .header h1 { font-size: 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 헤더 ===== -->
+<div class="header">
+  <div class="school-name">혜화여자고등학교</div>
+  <h1>2026 혜화공동체 약속</h1>
+  <div class="subtitle">온라인 서약 및 선서</div>
+  <div class="period">2026. 5. 11.(월) ~ 5. 15.(금)</div>
+</div>
+
+<!-- ===== 메인 ===== -->
+<div class="container">
+
+  <!-- 스텝 표시 -->
+  <div class="steps">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+  </div>
+
+  <!-- ========== STEP 1: 역할 선택 & 정보 입력 ========== -->
+  <div id="step-1">
+    <div class="card">
+      <div class="card-title">
+        <div class="icon">1</div>
+        응답자 정보
+      </div>
+
+      <div class="info-banner">
+        <div class="info-icon">i</div>
+        <div>교육공동체 약속 실천을 위한 온라인 서약입니다. 아래에서 해당하는 구분을 선택해 주세요.</div>
+      </div>
+
+      <!-- 역할 선택 -->
+      <div class="role-grid">
+        <button class="role-btn" data-role="student" onclick="selectRole('student')">
+          <span class="role-icon">&#x1F393;</span>
+          학생
+        </button>
+        <button class="role-btn" data-role="parent" onclick="selectRole('parent')">
+          <span class="role-icon">&#x1F3E0;</span>
+          학부모
+        </button>
+        <button class="role-btn" data-role="staff" onclick="selectRole('staff')">
+          <span class="role-icon">&#x1F4DA;</span>
+          교직원
+        </button>
+      </div>
+    </div>
+
+    <!-- 학생 추가 입력 -->
+    <div class="card student-fields" id="student-fields">
+      <div class="card-title">
+        <div class="icon">&#x270F;</div>
+        학생 정보
+      </div>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="grade">학년</label>
+          <select id="grade">
+            <option value="">선택</option>
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="class-num">반</label>
+          <select id="class-num">
+            <option value="">선택</option>
+            <option value="1">1반</option>
+            <option value="2">2반</option>
+            <option value="3">3반</option>
+            <option value="4">4반</option>
+            <option value="5">5반</option>
+            <option value="6">6반</option>
+            <option value="7">7반</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="number">번호</label>
+          <input type="text" id="number" placeholder="예: 15" inputmode="numeric" maxlength="3">
+        </div>
+        <div class="form-group">
+          <label for="student-name">이름</label>
+          <input type="text" id="student-name" placeholder="이름을 입력하세요">
+        </div>
+      </div>
+      <div class="error-msg" id="student-error">학년, 반, 번호, 이름을 모두 입력해 주세요.</div>
+    </div>
+
+    <!-- 학부모 추가 입력 -->
+    <div class="card parent-fields" id="parent-fields">
+      <div class="card-title">
+        <div class="icon">&#x270F;</div>
+        학부모 정보
+      </div>
+      <div class="form-group">
+        <label for="parent-name">이름 (선택)</label>
+        <input type="text" id="parent-name" placeholder="이름을 입력하세요 (선택사항)">
+      </div>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="parent-grade">자녀 학년</label>
+          <select id="parent-grade">
+            <option value="">선택</option>
+            <option value="1">1학년</option>
+            <option value="2">2학년</option>
+            <option value="3">3학년</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="parent-class">자녀 반</label>
+          <select id="parent-class">
+            <option value="">선택</option>
+            <option value="1">1반</option>
+            <option value="2">2반</option>
+            <option value="3">3반</option>
+            <option value="4">4반</option>
+            <option value="5">5반</option>
+            <option value="6">6반</option>
+            <option value="7">7반</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 교직원 추가 입력 -->
+    <div class="card staff-fields" id="staff-fields">
+      <div class="card-title">
+        <div class="icon">&#x270F;</div>
+        교직원 정보
+      </div>
+      <div class="form-group">
+        <label for="staff-name">이름 (선택)</label>
+        <input type="text" id="staff-name" placeholder="이름을 입력하세요 (선택사항)">
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="btn-next-1" onclick="goToStep2()" disabled>
+      다음으로
+    </button>
+  </div>
+
+  <!-- ========== STEP 2: 약속 확인 & 선서 ========== -->
+  <div id="step-2" class="hidden">
+
+    <!-- 공동체 약속 전문 -->
+    <div class="card">
+      <div class="card-title">
+        <div class="icon">2</div>
+        혜화공동체 약속
+      </div>
+
+      <div class="info-banner">
+        <div class="info-icon">i</div>
+        <div>아래의 공동체 약속을 읽고, 실천을 다짐해 주세요.</div>
+      </div>
+
+      <!-- 학생 약속 -->
+      <div class="promise-box" id="promise-student">
+        <h3>학생 약속</h3>
+        <ul class="promise-list">
+          <li>서로의 성장을 위해 수업에 적극적으로 참여하겠습니다.</li>
+          <li>선생님을 존중하고 모두에게 예의를 지키겠습니다.</li>
+          <li>학생의 품위를 지키고 타인을 배려하며 생활하겠습니다.</li>
+          <li>친구를 존중하고 학교 규칙을 준수하겠습니다.</li>
+        </ul>
+      </div>
+
+      <!-- 학부모 약속 -->
+      <div class="promise-box" id="promise-parent">
+        <h3>학부모 약속</h3>
+        <ul class="promise-list">
+          <li>자녀의 말을 경청하고 존중하겠습니다.</li>
+          <li>학교의 구성원으로서 함께 노력하겠습니다.</li>
+          <li>교사의 전문성을 믿고, 존중하며 자녀의 올바른 성장을 위해 함께 협력하겠습니다.</li>
+          <li>학교폭력 예방교육을 준수하며 학교의 규칙과 교사의 의견을 존중하겠습니다.</li>
+        </ul>
+      </div>
+
+      <!-- 교직원 약속 -->
+      <div class="promise-box" id="promise-staff">
+        <h3>교직원 약속</h3>
+        <ul class="promise-list">
+          <li>학생의 마음에 공감하고 존중하겠습니다.</li>
+          <li>학생의 성장을 위해 동료교사, 학부모와 협력하겠습니다.</li>
+          <li>존중하는 마음으로 학생의 학교생활을 지도하고, 비폭력적인 학교문화 조성을 위해 노력하겠습니다.</li>
+          <li>학생의 변화 가능성을 믿는 따뜻한 안내자가 되겠습니다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 선서문 -->
+    <div class="card">
+      <div class="oath-box">
+        <div class="oath-title">선 서 문</div>
+        <div class="oath-text" id="oath-text">
+          <!-- JS에서 역할에 따라 채워짐 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 서약 체크 -->
+    <div class="card">
+      <div class="card-title">
+        <div class="icon">3</div>
+        서약 확인
+      </div>
+
+      <label class="pledge-check" id="check-1-label">
+        <input type="checkbox" id="check-1" onchange="updatePledgeState()">
+        <span>위 혜화공동체 약속의 내용을 읽고 이해하였습니다.</span>
+      </label>
+
+      <label class="pledge-check" id="check-2-label">
+        <input type="checkbox" id="check-2" onchange="updatePledgeState()">
+        <span>혜화공동체의 일원으로서 위 약속을 성실히 실천할 것을 다짐합니다.</span>
+      </label>
+
+      <!-- 나만의 실천 다짐 한마디 -->
+      <div style="margin-top: 16px;">
+        <label style="font-size: 0.82rem; font-weight: 600; color: #555; display: block; margin-bottom: 6px;">
+          나만의 실천 다짐 한마디 (선택)
+        </label>
+        <textarea class="resolve-input" id="resolve-text" placeholder="예: 매일 친구에게 먼저 인사하겠습니다!"></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="goToStep1()">이전</button>
+      <button class="btn btn-primary" id="btn-submit" onclick="submitPledge()" disabled>서약하기</button>
+    </div>
+  </div>
+
+  <!-- ========== STEP 3: 완료 ========== -->
+  <div id="step-3" class="hidden">
+    <div class="completion show">
+      <div class="check-circle">
+        <svg viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"></polyline></svg>
+      </div>
+      <h2>서약이 완료되었습니다!</h2>
+      <p>혜화공동체 약속 실천에 동참해 주셔서 감사합니다.</p>
+      <p style="font-size:0.82rem; color:#888; margin-top:4px;">함께 만들어가는 행복한 혜화!</p>
+
+      <div class="participant-info" id="participant-info"></div>
+
+      <div class="resolve-display" id="resolve-display" style="display:none;"></div>
+
+      <div class="stamp">서약<br>완료</div>
+
+      <div class="date-stamp" id="date-stamp"></div>
+
+      <button class="btn btn-secondary" style="margin-top:24px;" onclick="resetAll()">처음으로 돌아가기</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ===== 상태 ===== */
+let selectedRole = null;
+
+/* ===== 역할 선택 ===== */
+function selectRole(role) {
+  selectedRole = role;
+
+  // 버튼 활성화
+  document.querySelectorAll('.role-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.role === role);
+  });
+
+  // 추가 필드 표시
+  document.getElementById('student-fields').classList.toggle('show', role === 'student');
+  document.getElementById('parent-fields').classList.toggle('show', role === 'parent');
+  document.getElementById('staff-fields').classList.toggle('show', role === 'staff');
+
+  // 에러 숨기기
+  document.getElementById('student-error').classList.remove('show');
+
+  // 다음 버튼 활성화
+  document.getElementById('btn-next-1').disabled = false;
+}
+
+/* ===== Step 이동 ===== */
+function goToStep2() {
+  // 학생인 경우 필수 입력 검증
+  if (selectedRole === 'student') {
+    const grade = document.getElementById('grade').value;
+    const classNum = document.getElementById('class-num').value;
+    const number = document.getElementById('number').value.trim();
+    const name = document.getElementById('student-name').value.trim();
+
+    if (!grade || !classNum || !number || !name) {
+      document.getElementById('student-error').classList.add('show');
+      return;
+    }
+    document.getElementById('student-error').classList.remove('show');
+  }
+
+  // 선서문 업데이트
+  updateOathText();
+
+  // 해당 역할의 약속만 강조
+  document.getElementById('promise-student').style.display = selectedRole === 'student' ? 'block' : 'block';
+  document.getElementById('promise-parent').style.display = selectedRole === 'parent' ? 'block' : 'block';
+  document.getElementById('promise-staff').style.display = selectedRole === 'staff' ? 'block' : 'block';
+
+  // 자기 약속을 맨 위로 & 강조
+  const boxes = [
+    document.getElementById('promise-student'),
+    document.getElementById('promise-parent'),
+    document.getElementById('promise-staff')
+  ];
+  const myBox = selectedRole === 'student' ? boxes[0] : selectedRole === 'parent' ? boxes[1] : boxes[2];
+  myBox.style.borderLeftColor = '#48BB78';
+  myBox.style.background = 'linear-gradient(135deg, #F0FFF4 0%, #E6FFE6 100%)';
+  const parent = myBox.parentNode;
+  parent.insertBefore(myBox, boxes[0] === myBox ? boxes[0] : parent.querySelector('.promise-box'));
+
+  showStep(2);
+}
+
+function goToStep1() {
+  showStep(1);
+}
+
+function showStep(step) {
+  document.getElementById('step-1').classList.toggle('hidden', step !== 1);
+  document.getElementById('step-2').classList.toggle('hidden', step !== 2);
+  document.getElementById('step-3').classList.toggle('hidden', step !== 3);
+
+  // 스텝 인디케이터 업데이트
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.classList.remove('active', 'done');
+    if (i === step) dot.classList.add('active');
+    else if (i < step) dot.classList.add('done');
+  }
+
+  // 스크롤 맨 위로
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ===== 선서문 생성 ===== */
+function updateOathText() {
+  const roleNames = { student: '학생', parent: '학부모', staff: '교직원' };
+  const roleName = roleNames[selectedRole];
+
+  let nameStr = '';
+  if (selectedRole === 'student') {
+    const g = document.getElementById('grade').value;
+    const c = document.getElementById('class-num').value;
+    const n = document.getElementById('number').value.trim();
+    const name = document.getElementById('student-name').value.trim();
+    nameStr = g + '학년 ' + c + '반 ' + n + '번 ' + name;
+  } else if (selectedRole === 'parent') {
+    const name = document.getElementById('parent-name').value.trim();
+    nameStr = name || '학부모';
+  } else {
+    const name = document.getElementById('staff-name').value.trim();
+    nameStr = name || '교직원';
+  }
+
+  const oathTexts = {
+    student: `나 <span class="highlight">${nameStr}</span>은(는)<br>
+혜화여자고등학교의 학생으로서<br>
+교육공동체가 함께 정한 <span class="highlight">혜화공동체 약속</span>을<br>
+진심으로 이해하고,<br>
+선생님과 친구를 존중하며<br>
+학교 규칙을 준수하고<br>
+서로 배려하는 학교생활을<br>
+<span class="highlight">성실히 실천할 것</span>을 선서합니다.`,
+
+    parent: `나 <span class="highlight">${nameStr}</span>은(는)<br>
+혜화여자고등학교의 학부모로서<br>
+교육공동체가 함께 정한 <span class="highlight">혜화공동체 약속</span>을<br>
+진심으로 이해하고,<br>
+자녀를 존중하며 학교와 함께<br>
+건강한 교육 환경을 만들어 가는 데<br>
+<span class="highlight">성실히 실천할 것</span>을 선서합니다.`,
+
+    staff: `나 <span class="highlight">${nameStr}</span>은(는)<br>
+혜화여자고등학교의 교직원으로서<br>
+교육공동체가 함께 정한 <span class="highlight">혜화공동체 약속</span>을<br>
+진심으로 이해하고,<br>
+학생에게 공감하고 존중하며<br>
+교육공동체와 협력하여<br>
+행복한 학교를 만들어 가는 데<br>
+<span class="highlight">성실히 실천할 것</span>을 선서합니다.`
+  };
+
+  document.getElementById('oath-text').innerHTML = oathTexts[selectedRole];
+}
+
+/* ===== 서약 체크 상태 ===== */
+function updatePledgeState() {
+  const c1 = document.getElementById('check-1').checked;
+  const c2 = document.getElementById('check-2').checked;
+  document.getElementById('check-1-label').classList.toggle('checked', c1);
+  document.getElementById('check-2-label').classList.toggle('checked', c2);
+  document.getElementById('btn-submit').disabled = !(c1 && c2);
+}
+
+/* ===== 서약 제출 ===== */
+function submitPledge() {
+  const c1 = document.getElementById('check-1').checked;
+  const c2 = document.getElementById('check-2').checked;
+  if (!c1 || !c2) return;
+
+  // 참여자 정보 표시
+  let info = '';
+  if (selectedRole === 'student') {
+    const g = document.getElementById('grade').value;
+    const c = document.getElementById('class-num').value;
+    const n = document.getElementById('number').value.trim();
+    const name = document.getElementById('student-name').value.trim();
+    info = '학생 | ' + g + '학년 ' + c + '반 ' + n + '번 ' + name;
+  } else if (selectedRole === 'parent') {
+    const name = document.getElementById('parent-name').value.trim();
+    const pg = document.getElementById('parent-grade').value;
+    const pc = document.getElementById('parent-class').value;
+    let detail = '학부모';
+    if (name) detail = name + ' (학부모)';
+    if (pg && pc) detail += ' | 자녀: ' + pg + '학년 ' + pc + '반';
+    info = detail;
+  } else {
+    const name = document.getElementById('staff-name').value.trim();
+    info = '교직원' + (name ? ' | ' + name : '');
+  }
+  document.getElementById('participant-info').textContent = info;
+
+  // 다짐 한마디 표시
+  const resolve = document.getElementById('resolve-text').value.trim();
+  const resolveDisplay = document.getElementById('resolve-display');
+  if (resolve) {
+    resolveDisplay.textContent = resolve;
+    resolveDisplay.style.display = 'block';
+  } else {
+    resolveDisplay.style.display = 'none';
+  }
+
+  // 날짜 표시
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const h = String(now.getHours()).padStart(2, '0');
+  const min = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById('date-stamp').textContent = y + '.' + m + '.' + d + ' ' + h + ':' + min + ' 서약 완료';
+
+  // Google Sheets 전송 (URL이 설정된 경우)
+  submitToSheet(info, resolve);
+
+  showStep(3);
+}
+
+/* ===== Google Sheets 연동 ===== */
+const SCRIPT_URL = ''; // Google Apps Script 웹앱 URL을 여기에 입력
+
+function submitToSheet(info, resolve) {
+  if (!SCRIPT_URL) return;
+
+  const roleLabel = selectedRole === 'student' ? '학생' : selectedRole === 'parent' ? '학부모' : '교직원';
+
+  const data = {
+    timestamp: new Date().toLocaleString('ko-KR'),
+    role: roleLabel,
+    grade: '',
+    classNum: '',
+    number: '',
+    name: '',
+    pledge1: '동의',
+    pledge2: '동의',
+    resolve: resolve || ''
+  };
+
+  if (selectedRole === 'student') {
+    data.grade = document.getElementById('grade').value;
+    data.classNum = document.getElementById('class-num').value;
+    data.number = document.getElementById('number').value.trim();
+    data.name = document.getElementById('student-name').value.trim();
+  } else if (selectedRole === 'parent') {
+    data.name = document.getElementById('parent-name').value.trim();
+    data.grade = document.getElementById('parent-grade').value;
+    data.classNum = document.getElementById('parent-class').value;
+  } else {
+    data.name = document.getElementById('staff-name').value.trim();
+  }
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(function() {});
+}
+
+/* ===== 리셋 ===== */
+function resetAll() {
+  selectedRole = null;
+  document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('selected'));
+  document.getElementById('student-fields').classList.remove('show');
+  document.getElementById('parent-fields').classList.remove('show');
+  document.getElementById('staff-fields').classList.remove('show');
+  document.getElementById('btn-next-1').disabled = true;
+
+  // 입력 초기화
+  document.getElementById('grade').value = '';
+  document.getElementById('class-num').value = '';
+  document.getElementById('number').value = '';
+  document.getElementById('student-name').value = '';
+  document.getElementById('parent-name').value = '';
+  document.getElementById('parent-grade').value = '';
+  document.getElementById('parent-class').value = '';
+  document.getElementById('staff-name').value = '';
+
+  // 체크박스 초기화
+  document.getElementById('check-1').checked = false;
+  document.getElementById('check-2').checked = false;
+  document.getElementById('check-1-label').classList.remove('checked');
+  document.getElementById('check-2-label').classList.remove('checked');
+  document.getElementById('btn-submit').disabled = true;
+  document.getElementById('resolve-text').value = '';
+
+  showStep(1);
+}
+</script>
+
+</body>
+</html>
