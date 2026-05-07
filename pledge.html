@@ -770,12 +770,14 @@ body {
 
       <div class="date-stamp" id="date-stamp"></div>
 
-      <button class="btn btn-secondary" style="margin-top:24px;" onclick="resetAll()">처음으로 돌아가기</button>
+      <button class="btn btn-primary" style="margin-top:24px;" id="btn-capture-submit" onclick="captureAndSubmit()">서약완료 제출하기</button>
+      <button class="btn btn-secondary" style="margin-top:10px;" onclick="resetAll()">처음으로 돌아가기</button>
     </div>
   </div>
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 /* ===== 상태 ===== */
 let selectedRole = null;
@@ -1014,6 +1016,66 @@ function submitToSheet(info, resolve) {
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(data)
   }).catch(() => {});
+}
+
+/* ===== 서약완료 캡처 & 제출 ===== */
+function captureAndSubmit() {
+  var btn = document.getElementById('btn-capture-submit');
+  var resetBtn = document.querySelector('#step-3 .btn-secondary');
+  btn.disabled = true;
+  btn.textContent = '캡처 중...';
+
+  btn.style.display = 'none';
+  resetBtn.style.display = 'none';
+
+  var captureTarget = document.querySelector('#step-3 .completion');
+
+  html2canvas(captureTarget, {
+    scale: 2,
+    backgroundColor: '#F0F4F8',
+    useCORS: true
+  }).then(function(canvas) {
+    btn.style.display = '';
+    resetBtn.style.display = '';
+    btn.textContent = '제출 중...';
+
+    var imageData = canvas.toDataURL('image/png');
+    var roleLabel = selectedRole === 'student' ? '학생' : selectedRole === 'parent' ? '학부모' : '교직원';
+    var submitData = {
+      action: 'submitImage',
+      role: roleLabel,
+      imageData: imageData
+    };
+
+    if (selectedRole === 'student') {
+      submitData.grade = document.getElementById('grade').value;
+      submitData.classNum = document.getElementById('class-num').value;
+      submitData.number = document.getElementById('number').value.trim();
+      submitData.name = document.getElementById('student-name').value.trim();
+    } else if (selectedRole === 'parent') {
+      submitData.name = document.getElementById('parent-name').value.trim();
+    } else {
+      submitData.name = document.getElementById('staff-name').value.trim();
+    }
+
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(submitData)
+    }).then(function() {
+      btn.textContent = '제출 완료!';
+      btn.style.background = 'linear-gradient(135deg, #48BB78, #38A169)';
+    }).catch(function() {
+      btn.textContent = '제출 실패 - 다시 시도';
+      btn.disabled = false;
+    });
+  }).catch(function() {
+    btn.style.display = '';
+    resetBtn.style.display = '';
+    btn.textContent = '캡처 실패 - 다시 시도';
+    btn.disabled = false;
+  });
 }
 
 /* ===== 리셋 ===== */
