@@ -30,7 +30,7 @@ function setupSheet() {
   // 헤더 설정
   const headers = [
     '타임스탬프', '구분', '학년', '반', '번호', '이름',
-    '약속 이해 동의', '실천 다짐 동의', '실천 다짐 한마디'
+    '약속 이해 동의', '실천 다짐 동의', '실천 다짐 한마디', '서약완료 이미지'
   ];
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
 
@@ -51,6 +51,7 @@ function setupSheet() {
   sheet.setColumnWidth(7, 120); // 약속 이해
   sheet.setColumnWidth(8, 120); // 실천 다짐
   sheet.setColumnWidth(9, 300); // 다짐 한마디
+  sheet.setColumnWidth(10, 200); // 서약완료 이미지
 
   // 행 고정
   sheet.setFrozenRows(1);
@@ -130,10 +131,14 @@ function setupStatSheet(sheet) {
 /* ===== POST 요청 처리 ===== */
 function doPost(e) {
   try {
-    // form 파라미터 또는 JSON 둘 다 지원
     const data = e.parameter && e.parameter.role
       ? e.parameter
       : JSON.parse(e.postData.contents);
+
+    if (data.action === 'submitImage') {
+      return handleImageSubmit(data);
+    }
+
     const ss = SPREADSHEET_ID
       ? SpreadsheetApp.openById(SPREADSHEET_ID)
       : SpreadsheetApp.getActiveSpreadsheet();
@@ -143,7 +148,6 @@ function doPost(e) {
       return makeResponse(false, '시트를 찾을 수 없습니다. setupSheet()을 먼저 실행하세요.');
     }
 
-    // 데이터 행 추가
     const row = [
       data.timestamp || new Date().toLocaleString('ko-KR'),
       data.role || '',
@@ -162,6 +166,52 @@ function doPost(e) {
   } catch (err) {
     return makeResponse(false, err.message);
   }
+}
+
+/* ===== 서약완료 이미지 처리 ===== */
+function handleImageSubmit(data) {
+  const ss = SPREADSHEET_ID
+    ? SpreadsheetApp.openById(SPREADSHEET_ID)
+    : SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('서약현황');
+
+  if (!sheet) {
+    return makeResponse(false, '시트를 찾을 수 없습니다.');
+  }
+
+  const imageBase64 = data.imageData.replace(/^data:image\/\w+;base64,/, '');
+  const decoded = Utilities.base64Decode(imageBase64);
+
+  const now = new Date();
+  const timestamp = Utilities.formatDate(now, 'Asia/Seoul', 'yyyyMMdd_HHmmss');
+  const nameStr = data.name || '익명';
+  const fileName = (data.role || '미정') + '_' + nameStr + '_' + timestamp + '.png';
+
+  let folder;
+  const folders = DriveApp.getFoldersByName('혜화공동체_서약완료');
+  if (folders.hasNext()) {
+    folder = folders.next();
+  } else {
+    folder = DriveApp.createFolder('혜화공동체_서약완료');
+  }
+
+  const blob = Utilities.newBlob(decoded, 'image/png', fileName);
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  const fileUrl = file.getUrl();
+
+  const lastRow = sheet.getLastRow();
+  if (lastRow >= 2) {
+    const dataRange = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+    for (let i = dataRange.length - 1; i >= 0; i--) {
+      if (dataRange[i][1] === data.role && dataRange[i][5] === nameStr) {
+        sheet.getRange(i + 2, 10).setValue(fileUrl);
+        break;
+      }
+    }
+  }
+
+  return makeResponse(true, '이미지가 저장되었습니다.');
 }
 
 /* ===== GET 요청 처리 (테스트용) ===== */
