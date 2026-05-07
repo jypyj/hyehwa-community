@@ -173,40 +173,60 @@ function handleImageSubmit(data) {
   const ss = SPREADSHEET_ID
     ? SpreadsheetApp.openById(SPREADSHEET_ID)
     : SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('서약현황');
 
-  if (!sheet) {
-    return makeResponse(false, '시트를 찾을 수 없습니다.');
+  // 서약완료_이미지 시트 (없으면 생성)
+  let imgSheet = ss.getSheetByName('서약완료_이미지');
+  if (!imgSheet) {
+    imgSheet = ss.insertSheet('서약완료_이미지');
+    const headers = ['제출시간', '구분', '학년', '반', '번호', '이름'];
+    imgSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    imgSheet.getRange(1, 1, 1, headers.length)
+      .setFontWeight('bold')
+      .setBackground('#2C5F8A')
+      .setFontColor('#FFFFFF')
+      .setHorizontalAlignment('center');
+    imgSheet.setFrozenRows(1);
+    imgSheet.setColumnWidth(1, 160);
+    imgSheet.setColumnWidth(2, 80);
+    imgSheet.setColumnWidth(3, 60);
+    imgSheet.setColumnWidth(4, 60);
+    imgSheet.setColumnWidth(5, 60);
+    imgSheet.setColumnWidth(6, 100);
   }
 
   const imageBase64 = data.imageData.replace(/^data:image\/\w+;base64,/, '');
   const decoded = Utilities.base64Decode(imageBase64);
 
   const now = new Date();
-  const timestamp = Utilities.formatDate(now, 'Asia/Seoul', 'yyyyMMdd_HHmmss');
-  const nameStr = data.name || '익명';
-  const fileName = (data.role || '미정') + '_' + nameStr + '_' + timestamp + '.png';
+  const timestamp = Utilities.formatDate(now, 'Asia/Seoul', 'yyyy-MM-dd HH:mm:ss');
+  const nameStr = data.name || '';
+  const fileName = (data.role || '') + '_' + (nameStr || '익명') + '_' + Utilities.formatDate(now, 'Asia/Seoul', 'yyyyMMdd_HHmmss') + '.jpg';
+  const blob = Utilities.newBlob(decoded, 'image/jpeg', fileName);
 
-  let folder;
-  const folders = DriveApp.getFoldersByName('혜화공동체_서약완료');
-  if (folders.hasNext()) {
-    folder = folders.next();
-  } else {
-    folder = DriveApp.createFolder('혜화공동체_서약완료');
-  }
+  // 정보 행 추가
+  const newRow = imgSheet.getLastRow() + 1;
+  imgSheet.getRange(newRow, 1).setValue(timestamp);
+  imgSheet.getRange(newRow, 2).setValue(data.role || '');
+  imgSheet.getRange(newRow, 3).setValue(data.grade || '');
+  imgSheet.getRange(newRow, 4).setValue(data.classNum || '');
+  imgSheet.getRange(newRow, 5).setValue(data.number || '');
+  imgSheet.getRange(newRow, 6).setValue(nameStr);
 
-  const blob = Utilities.newBlob(decoded, 'image/png', fileName);
-  const file = folder.createFile(blob);
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-  const fileUrl = file.getUrl();
+  // 이미지 직접 삽입 (7번째 열 위치)
+  imgSheet.insertImage(blob, 7, newRow);
+  imgSheet.setRowHeight(newRow, 300);
 
-  const lastRow = sheet.getLastRow();
-  if (lastRow >= 2) {
-    const dataRange = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
-    for (let i = dataRange.length - 1; i >= 0; i--) {
-      if (dataRange[i][1] === data.role && dataRange[i][5] === nameStr) {
-        sheet.getRange(i + 2, 10).setValue(fileUrl);
-        break;
+  // 서약현황 시트에도 제출 기록
+  const sheet = ss.getSheetByName('서약현황');
+  if (sheet) {
+    const lastRow = sheet.getLastRow();
+    if (lastRow >= 2) {
+      const dataRange = sheet.getRange(2, 1, lastRow - 1, 6).getValues();
+      for (let i = dataRange.length - 1; i >= 0; i--) {
+        if (dataRange[i][1] === data.role && String(dataRange[i][5]) === nameStr) {
+          sheet.getRange(i + 2, 10).setValue('제출완료 (' + timestamp + ')');
+          break;
+        }
       }
     }
   }
