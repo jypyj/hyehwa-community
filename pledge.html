@@ -1031,20 +1031,22 @@ function captureAndSubmit() {
   var captureTarget = document.querySelector('#step-3 .completion');
 
   html2canvas(captureTarget, {
-    scale: 2,
+    scale: 1.5,
     backgroundColor: '#F0F4F8',
-    useCORS: true
+    useCORS: true,
+    allowTaint: true
   }).then(function(canvas) {
     btn.style.display = '';
     resetBtn.style.display = '';
     btn.textContent = '제출 중...';
 
-    var imageData = canvas.toDataURL('image/png');
+    var imageData = canvas.toDataURL('image/jpeg', 0.7);
     var roleLabel = selectedRole === 'student' ? '학생' : selectedRole === 'parent' ? '학부모' : '교직원';
     var submitData = {
       action: 'submitImage',
       role: roleLabel,
-      imageData: imageData
+      imageData: imageData,
+      name: ''
     };
 
     if (selectedRole === 'student') {
